@@ -3,8 +3,10 @@ import "./App.css";
 import { Route } from "react-router-dom";
 import TopPage from "./pages/TopPage";
 
-function App() {
+const App = () => {
+  // sockets test
+
   return <Route component={TopPage} />;
-}
+};
 
 export default App;

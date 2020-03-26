@@ -1,37 +1,21 @@
 const express = require("express");
-const router = express.Router();
-const io = require("../server");
-let Twitter = require("twitter");
-
-var client = new Twitter({
-  consumer_key: process.env.TWITTER_CONSUMER_KEY,
-  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-});
-
-let socketConnection, twitterStream;
 
 module.exports = function(io) {
-  const sendMessage = msg => {
-    if (msg.text.includes("RT")) {
-      return;
-    }
-    socketConnection.emit("tweets", msg);
-  };
+  let Twitter = require("twitter");
 
-  io.on("connection", socket => {
-    socketConnection = socket;
-    stream();
-    socket.on("connection", () => console.log("Client connected"));
-    socket.on("disconnect", () => console.log("Client disconnected"));
+  var client = new Twitter({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
   });
 
-  router.get("/stream", (req, res) => {
-    console.log("triggered");
+  io.on("connection", socket => {
     client.stream("statuses/filter", { track: "javascript" }, stream => {
       stream.on("data", event => {
-        sendMessage(event && event.text);
+        let tweetId = event && event.id;
+
+        socket.emit("tweetId", { tweetId });
       });
 
       stream.on("error", function(error) {
