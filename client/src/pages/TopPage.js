@@ -18,10 +18,11 @@ const TopPage = () => {
   // sockets test
   const socket = io();
   const [twId, setTWId] = useState(0);
-  socket.on("tweetId", ({ tweetId }) => setTWId(tweetId));
+  socket.on("tweetId", tweetId => setTWId(tweetId));
+
   return (
     <div>
-      <TwitterTweetEmbed tweetId='1242981870108676000' />
+      <TwitterTweetEmbed tweetId={twId || ""} />
       <div>TopPage!!!</div>
     </div>
   );

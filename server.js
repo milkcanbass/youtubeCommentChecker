@@ -2,11 +2,13 @@ const path = require("path");
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
+const router = express.Router();
 const io = require("socket.io")(server);
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const PORT = process.env.PORT || 8000;
+const test = require("./routes/test");
 require("dotenv").config();
 
 app.use(logger("dev"));
@@ -16,7 +18,9 @@ app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
 
 //socketIo
-require("./routes/twitter")(io); // app.use("/twitter", twitter);
+const twitter = require("./routes/twitter")(app, io);
+
+app.use("/test", test);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));

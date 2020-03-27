@@ -1,6 +1,6 @@
 const express = require("express");
 
-module.exports = function(io) {
+module.exports = function(app, io) {
   let Twitter = require("twitter");
 
   var client = new Twitter({
@@ -10,12 +10,14 @@ module.exports = function(io) {
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
   });
 
-  io.on("connection", socket => {
-    client.stream("statuses/filter", { track: "javascript" }, stream => {
-      stream.on("data", event => {
-        let tweetId = event && event.id;
+  let tweetId;
+  let socketConnection;
+  let twitterStream;
 
-        socket.emit("tweetId", { tweetId });
+  io.on("connection", socket => {
+    client.get("statuses/filter", { track: "javascript" }, stream => {
+      stream.on("data", event => {
+        tweetId = (event && event.id) || "";
       });
 
       stream.on("error", function(error) {
@@ -23,5 +25,7 @@ module.exports = function(io) {
       });
       twitterStream = stream;
     });
+
+    io.emit("tweetId", tweetId);
   });
 };
